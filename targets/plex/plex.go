@@ -26,7 +26,6 @@ type target struct {
 	url       string
 	token     string
 	libraries []library
-	opts      options
 
 	log     zerolog.Logger
 	rewrite autoscan.Rewriter
@@ -68,7 +67,6 @@ func New(c Config) (autoscan.Target, error) {
 		url:       c.URL,
 		token:     c.Token,
 		libraries: libraries,
-		opts:      c.Options,
 
 		log:     l,
 		rewrite: rewriter,
