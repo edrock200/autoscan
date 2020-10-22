@@ -138,7 +138,7 @@ func (c apiClient) Libraries() ([]library, error) {
 	return libraries, nil
 }
 
-func (c apiClient) Scan(path string, libraryID int) error {
+func (c apiClient) Scan(path string, libraryID int, forceRefresh bool, deepAnalysis bool) error {
 	reqURL := autoscan.JoinURL(c.baseURL, "library", "sections", strconv.Itoa(libraryID), "refresh")
 	req, err := http.NewRequest("PUT", reqURL, nil)
 	if err != nil {
@@ -147,6 +147,8 @@ func (c apiClient) Scan(path string, libraryID int) error {
 
 	q := url.Values{}
 	q.Add("path", path)
+	q.Add("force", c.btoa(forceRefresh))
+	q.Add("deep", c.btoa(deepAnalysis))
 	req.URL.RawQuery = q.Encode()
 
 	res, err := c.do(req)
@@ -156,4 +158,12 @@ func (c apiClient) Scan(path string, libraryID int) error {
 
 	res.Body.Close()
 	return nil
+}
+
+func (c apiClient) btoa(val bool) string {
+	if val {
+		return "1"
+	}
+
+	return "0"
 }

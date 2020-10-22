@@ -14,12 +14,19 @@ type Config struct {
 	Token     string             `yaml:"token"`
 	Rewrite   []autoscan.Rewrite `yaml:"rewrite"`
 	Verbosity string             `yaml:"verbosity"`
+	Options   options            `yaml:"options"`
+}
+
+type options struct {
+	ForceRefresh bool `yaml:"force_refresh"`
+	DeepAnalysis bool `yaml:"deep_analysis"`
 }
 
 type target struct {
 	url       string
 	token     string
 	libraries []library
+	opts      options
 
 	log     zerolog.Logger
 	rewrite autoscan.Rewriter
@@ -61,6 +68,7 @@ func New(c Config) (autoscan.Target, error) {
 		url:       c.URL,
 		token:     c.Token,
 		libraries: libraries,
+		opts:      c.Options,
 
 		log:     l,
 		rewrite: rewriter,
@@ -94,7 +102,7 @@ func (t target) Scan(scan autoscan.Scan) error {
 
 		l.Trace().Msg("Sending scan request")
 
-		if err := t.api.Scan(scanFolder, lib.ID); err != nil {
+		if err := t.api.Scan(scanFolder, lib.ID, t.opts.ForceRefresh, t.opts.DeepAnalysis); err != nil {
 			return err
 		}
 
