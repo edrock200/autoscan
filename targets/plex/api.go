@@ -16,14 +16,20 @@ type apiClient struct {
 	log     zerolog.Logger
 	baseURL string
 	token   string
+
+	forceRefresh bool
+	deepAnalysis bool
 }
 
-func newAPIClient(baseURL string, token string, log zerolog.Logger) *apiClient {
+func newAPIClient(baseURL string, token string, opts options, log zerolog.Logger) *apiClient {
 	return &apiClient{
 		client:  &http.Client{},
 		log:     log,
 		baseURL: baseURL,
 		token:   token,
+
+		forceRefresh: opts.ForceRefresh,
+		deepAnalysis: opts.DeepAnalysis,
 	}
 }
 
@@ -138,7 +144,7 @@ func (c apiClient) Libraries() ([]library, error) {
 	return libraries, nil
 }
 
-func (c apiClient) Scan(path string, libraryID int, forceRefresh bool, deepAnalysis bool) error {
+func (c apiClient) Scan(path string, libraryID int) error {
 	reqURL := autoscan.JoinURL(c.baseURL, "library", "sections", strconv.Itoa(libraryID), "refresh")
 	req, err := http.NewRequest("PUT", reqURL, nil)
 	if err != nil {
@@ -147,8 +153,8 @@ func (c apiClient) Scan(path string, libraryID int, forceRefresh bool, deepAnaly
 
 	q := url.Values{}
 	q.Add("path", path)
-	q.Add("force", c.btoa(forceRefresh))
-	q.Add("deep", c.btoa(deepAnalysis))
+	q.Add("force", c.btoa(c.forceRefresh))
+	q.Add("deep", c.btoa(c.deepAnalysis))
 	req.URL.RawQuery = q.Encode()
 
 	res, err := c.do(req)

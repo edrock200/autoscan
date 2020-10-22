@@ -43,7 +43,7 @@ func New(c Config) (autoscan.Target, error) {
 		return nil, err
 	}
 
-	api := newAPIClient(c.URL, c.Token, l)
+	api := newAPIClient(c.URL, c.Token, c.Options, l)
 
 	version, err := api.Version()
 	if err != nil {
@@ -102,7 +102,7 @@ func (t target) Scan(scan autoscan.Scan) error {
 
 		l.Trace().Msg("Sending scan request")
 
-		if err := t.api.Scan(scanFolder, lib.ID, t.opts.ForceRefresh, t.opts.DeepAnalysis); err != nil {
+		if err := t.api.Scan(scanFolder, lib.ID); err != nil {
 			return err
 		}
 
