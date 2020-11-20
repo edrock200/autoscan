@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	maxSyncRetries = 5
+	maxSyncRetries = 100
 )
 
 type Config struct {
